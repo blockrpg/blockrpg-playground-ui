@@ -5,7 +5,7 @@
 <style></style>
 
 <template>
-  <div class="view-login">登录页面</div>
+  <xpage class="view-login">登录页面</xpage>
 </template>
 
 <script>

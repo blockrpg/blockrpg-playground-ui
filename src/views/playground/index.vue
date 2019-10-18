@@ -5,7 +5,7 @@
 <style></style>
 
 <template>
-  <div class="view-playground">游乐场页面</div>
+  <xpage class="view-playground">游乐场页面</xpage>
 </template>
 
 <script>

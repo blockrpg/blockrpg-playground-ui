@@ -14,6 +14,9 @@ Vue.prototype.$message = Message;
 
 Vue.config.productionTip = false;
 
+import xpage from '@/components/xpage/index.vue';
+Vue.component(xpage.name, xpage);
+
 new Vue({
   router,
   store,

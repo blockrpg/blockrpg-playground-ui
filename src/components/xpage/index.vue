@@ -1,16 +1,23 @@
 <!--局部样式-->
-<style scoped></style>
+<style scoped>
+.xpage {
+  width: 100%;
+  max-width: 100%;
+}
+</style>
 
 <!--全局局部覆盖样式-->
 <style></style>
 
 <template>
-  <xpage class="view-register">注册页面</xpage>
+  <div class="xpage">
+    <slot />
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'view-register',
+  name: 'xpage',
   props: {},
   data() {
     return {
