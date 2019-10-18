@@ -1,11 +1,29 @@
 <!--局部样式-->
-<style scoped></style>
+<style scoped>
+.app {
+  font-size: 14px;
+  color: #333;
+  width: 100%;
+  height: 100%;
+}
+</style>
 
 <!--全局局部覆盖样式-->
-<style></style>
+<style>
+html, body {
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+</style>
 
 <template>
-  <div id="app">你好，世界</div>
+  <div
+    id="app"
+    class="app">
+    <router-view />
+  </div>
 </template>
 
 <script>
