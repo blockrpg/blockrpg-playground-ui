@@ -5,12 +5,12 @@
 <style></style>
 
 <template>
-  <div id="app">你好，世界</div>
+  <div></div>
 </template>
 
 <script>
 export default {
-  name: 'app',
+  name: '',
   props: {},
   data() {
     return {

@@ -5,12 +5,12 @@
 <style></style>
 
 <template>
-  <div id="app">你好，世界</div>
+  <div class="view-register">注册页面</div>
 </template>
 
 <script>
 export default {
-  name: 'app',
+  name: 'view-register',
   props: {},
   data() {
     return {
