@@ -14,6 +14,12 @@ Vue.prototype.$message = Message;
 
 Vue.config.productionTip = false;
 
+import { Form, FormItem, Input, Button } from 'element-ui';
+Vue.use(Form);
+Vue.use(FormItem);
+Vue.use(Input);
+Vue.use(Button);
+
 import xpage from '@/components/xpage/index.vue';
 Vue.component(xpage.name, xpage);
 

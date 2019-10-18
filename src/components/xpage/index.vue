@@ -1,6 +1,7 @@
 <!--局部样式-->
 <style scoped>
 .xpage {
+  box-sizing: border-box;
   width: 100%;
   max-width: 100%;
 }
