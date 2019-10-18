@@ -29,6 +29,7 @@
         <el-input
           placeholder="请输入玩家昵称，长度不超过20个字符"
           clearable
+          autocomplete="new-password"
           v-model="regForm.name">
         </el-input>
       </el-form-item>
