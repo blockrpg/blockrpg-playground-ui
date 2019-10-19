@@ -19,6 +19,13 @@
   <xpage
     class="view-register"
     name="注册玩家">
+    <template v-slot:right>
+      <el-button
+        @click="handleToLoginClick"
+        type="text">
+        登录
+      </el-button>
+    </template>
     <el-form
       class="reg-form"
       ref="regForm"
@@ -183,6 +190,12 @@ export default {
     // 重置表单点击事件
     handleResetClick() {
       this.$refs['regForm'].resetFields();
+    },
+    // 注册玩家按钮点击
+    handleToLoginClick() {
+      this.$router.replace({
+        name: 'view-login',
+      });
     },
     //#endregion
     //#region 业务逻辑方法

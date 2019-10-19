@@ -14,7 +14,9 @@
   color: white;
   font-size: 22px;
   padding: 0px 20px 0px 20px;
-  line-height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
 
@@ -23,7 +25,12 @@
 
 <template>
   <div class="xpage">
-    <div class="page-header">{{name}}</div>
+    <div class="page-header">
+      <div>{{name}}</div>
+      <div>
+        <slot name="right" />
+      </div>
+    </div>
     <div>
       <slot />
     </div>
