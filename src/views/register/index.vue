@@ -99,6 +99,7 @@
 
 <script>
 import jsSHA from 'jssha';
+import * as api from '@/api/player';
 
 export default {
   name: 'view-register',
@@ -191,7 +192,14 @@ export default {
         name,
         password: hashPwd,
       };
-      console.log(params);
+      const result = await api.register(params);
+      if (result.success) {
+        this.$msgbox({
+          title: '注册成功',
+          type: 'success',
+          message: `您的账号为：${result.object.account}，可使用账号或昵称登录`,
+        });
+      }
     },
     //#endregion
     //#region 接口访问方法
