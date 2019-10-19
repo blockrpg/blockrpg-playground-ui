@@ -5,7 +5,11 @@
 <style></style>
 
 <template>
-  <xpage class="view-login">登录页面</xpage>
+  <xpage
+    name="游戏登录"
+    class="view-login">
+    登录页面
+  </xpage>
 </template>
 
 <script>

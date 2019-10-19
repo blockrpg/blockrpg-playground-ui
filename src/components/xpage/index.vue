@@ -5,6 +5,17 @@
   width: 100%;
   max-width: 100%;
 }
+.page-header {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50px;
+  background-color: #555;
+  box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
+  color: white;
+  font-size: 22px;
+  padding: 0px 20px 0px 20px;
+  line-height: 50px;
+}
 </style>
 
 <!--全局局部覆盖样式-->
@@ -12,14 +23,22 @@
 
 <template>
   <div class="xpage">
-    <slot />
+    <div class="page-header">{{name}}</div>
+    <div>
+      <slot />
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'xpage',
-  props: {},
+  props: {
+    name: {
+      type: String,
+      default: '',
+    },
+  },
   data() {
     return {
       //#region 页面对象

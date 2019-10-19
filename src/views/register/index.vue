@@ -1,7 +1,11 @@
 <!--局部样式-->
 <style scoped>
 .view-register {
-  padding: 50px;
+
+}
+.reg-form {
+  margin-top: 30px;
+  margin-left: 20px;
 }
 .submit-warp {
   text-align: right;
@@ -12,8 +16,11 @@
 <style></style>
 
 <template>
-  <xpage class="view-register">
+  <xpage
+    class="view-register"
+    name="注册玩家">
     <el-form
+      class="reg-form"
       ref="regForm"
       style="width: 400px"
       size="mini"
@@ -24,7 +31,11 @@
         label="玩家名称"
         prop="name"
         :rules="[
-          { required: true, message: '玩家名称不能为空' },
+          {
+            required: true,
+            validator: validateName,
+            trigger: 'blur',
+          },
         ]">
         <el-input
           placeholder="请输入玩家昵称，长度不超过20个字符"
@@ -37,7 +48,11 @@
         label="登录密码"
         prop="password"
         :rules="[
-          { required: true, message: '登录密码不能为空' },
+          {
+            required: true,
+            validator: validatePassword,
+            trigger: 'blur',
+          },
         ]">
         <el-input
           placeholder="请输入玩家登录密码，8 ~ 16个字符以内"
@@ -51,7 +66,11 @@
         label="确认密码"
         prop="rePassword"
         :rules="[
-          { required: true, message: '请再次输入登录密码' },
+          {
+            required: true,
+            validator: validateRePassword,
+            trigger: 'blur',
+          },
         ]">
         <el-input
           placeholder="请再次输入玩家登录密码以确认"
@@ -64,6 +83,10 @@
       <el-form-item>
         <div class="submit-warp">
           <el-button
+            @click="handleResetClick">
+            重置
+          </el-button>
+          <el-button
             type="primary"
             @click="handleRegClick">
             注册
@@ -75,19 +98,61 @@
 </template>
 
 <script>
+import jsSHA from 'jssha';
+
 export default {
   name: 'view-register',
   props: {},
   data() {
     return {
       //#region 页面对象
+      // 玩家昵称校验规则
+      validateName: (rule, value, callback) => {
+        if (!value) {
+          callback(new Error('请输入玩家昵称'));
+          return;
+        }
+        if (value.length > 20) {
+          callback(new Error('玩家昵称必须在20个字符以内'));
+          return;
+        }
+        callback();
+      },
+      // 登录密码校验规则
+      validatePassword: (rule, value, callback) => {
+        if (!value) {
+          callback(new Error('请输入玩家登录密码'));
+          return;
+        }
+        if (value.length < 8 || value.length > 16) {
+          callback(new Error('玩家登录密码必须在8 ~ 16个字符以内'));
+          return;
+        }
+        if (this.regForm.rePassword) {
+          this.$refs['regForm'].validateField('rePassword');
+        }
+        callback();
+      },
+      // 确认密码校验规则
+      validateRePassword: (rule, value, callback) => {
+        if (!value) {
+          callback(new Error('请再次输入玩家登录密码'));
+          return;
+        }
+        if (value !== this.regForm.password) {
+          callback(new Error('两次输入的密码不一致'));
+          return;
+        }
+        callback();
+      },
       //#endregion
       //#region 页面内容绑定数据
+      // 表单绑定数据
       regForm: {
         name: '',
         password: '',
         rePassword: '',
-      }
+      },
       //#endregion
       //#region 页面样式绑定数据
       //#endregion
@@ -104,22 +169,42 @@ export default {
   },
   methods: {
     //#region 页面事件方法
+    // 注册点击事件
     handleRegClick() {
       this.$refs['regForm'].validate((valid) => {
         if (valid) {
-          alert('submit!');
+          this.registerPlayer(this.regForm.name, this.regForm.password);
         } else {
-          console.log('error submit!!');
           return false;
         }
       });
     },
+    // 重置表单点击事件
+    handleResetClick() {
+      this.$refs['regForm'].resetFields();
+    },
     //#endregion
     //#region 业务逻辑方法
+    async registerPlayer(name, password) {
+      const hashPwd = this.hashPassword(password);
+      const params = {
+        name,
+        password: hashPwd,
+      };
+      console.log(params);
+    },
     //#endregion
     //#region 接口访问方法
     //#endregion
     //#region 数据转换方法
+    // 对用户输入密码进行hash加密
+    hashPassword(password) {
+      const shaObj = new jsSHA("SHA-256", "TEXT");
+      shaObj.setHMACKey("jimao", "TEXT");
+      shaObj.update(password);
+      const hash = shaObj.getHMAC("HEX");
+      return hash;
+    }
     //#endregion
     //#region 自动样式方法
     //#endregion

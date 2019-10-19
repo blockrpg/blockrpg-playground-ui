@@ -9,6 +9,8 @@
     ]
   },
   "rules": {
+    "no-string-literal": false,
+    "no-console": false,
     "no-empty": false,
     "indent": [true, "spaces", 2],
     "interface-name": false,
