@@ -82,8 +82,8 @@
 </template>
 
 <script>
-import jsSHA from 'jssha';
 import * as api from '@/api/player';
+import { Password } from 'blockrpg-core/built/Password';
 
 export default {
   name: 'view-login',
@@ -159,7 +159,7 @@ export default {
       this.$nextTick(async () => {
         const params = {
           input,
-          password: this.hashPassword(password),
+          password: Password.Hash(password),
         };
         const result = await api.login(params);
         if (result.success) {
@@ -180,14 +180,6 @@ export default {
     //#region 接口访问方法
     //#endregion
     //#region 数据转换方法
-    // 对用户输入密码进行hash加密
-    hashPassword(password) {
-      const shaObj = new jsSHA("SHA-256", "TEXT");
-      shaObj.setHMACKey("jimao", "TEXT");
-      shaObj.update(password);
-      const hash = shaObj.getHMAC("HEX");
-      return hash;
-    }
     //#endregion
     //#region 自动样式方法
     //#endregion

@@ -8,7 +8,7 @@ const onResponse = <T = any> (rsp: AxiosResponse): Promise<AxiosResponse<T>> => 
       if (!rsp.data.success && message) {
         MessageBox({
           type: 'error',
-          message: message,
+          message,
         });
       }
     }

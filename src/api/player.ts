@@ -1,4 +1,4 @@
-import {http} from "@/utils/http";
+import {http} from '@/utils/http';
 
 // 玩家注册
 export const register = (params: any) => {
