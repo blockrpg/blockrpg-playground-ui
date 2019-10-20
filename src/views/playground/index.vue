@@ -8,6 +8,13 @@
   <xpage
     class="view-playground"
     name="游乐场">
+    <template
+      v-slot:right>
+      <el-button
+        type="text">
+        退出游戏
+      </el-button>
+    </template>
     游乐场页面
   </xpage>
 </template>
