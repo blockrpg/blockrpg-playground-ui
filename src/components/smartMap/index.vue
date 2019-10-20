@@ -1,7 +1,7 @@
 <!--局部样式-->
 <style scoped>
 .smart-map {
-
+  position: absolute;
 }
 .smart-map .map-grid {
   position: absolute;
@@ -30,25 +30,6 @@
 
 <script>
 import * as api from '@/api/mapBlock';
-// import SocketIO from 'socket.io-client';
-// const WSIO = SocketIO('http://localhost:3000');
-
-// console.log(1);
-// WSIO.emit('event', '服务端你好啊1');
-
-// WSIO.on('connect', () => {
-//   console.log('连接到服务器');
-//   setInterval(() => {
-//     console.log(2);
-//     WSIO.emit('event', '服务端你好啊2');
-//   }, 2000);
-// });
-// WSIO.on('event', (data) => {
-//   console.log('接收到服务端消息', data);
-// });
-// WSIO.on('disconnect', () => {
-//   console.log('断开连接');
-// });
 
 const BlankGrid = {
   pass: false,
@@ -156,15 +137,15 @@ export default {
     //#region 数据转换计算属性
     //#endregion
     //#region 样式计算属性
-    // 自动计算地图样式，驱动地图卷轴式平移
+    // 自动计算地图样式
+    // 驱动地图整体平移
     autoStyle() {
-      let style = {};
+      const style = {};
       let top = -8;
       let left = -8;
       top -= (this.playerPos.y - 3) * (32 / 5);
       left -= this.playerPos.x * (32 / 5);
-      style['margin-top'] = `${top}px`;
-      style['margin-left'] = `${left}px`;
+      style['transform'] = `translate(${left}px, ${top}px)`;
       return style;
     },
     // 自动计算当前玩家所在的区块坐标
@@ -370,7 +351,7 @@ export default {
         y: rect.y,
         w: rect.w,
         h: rect.h,
-        mapId: '1',
+        mapId: 'test',
       };
       let result = await api.queryRect(params);
       if (result.success) {
@@ -393,19 +374,25 @@ export default {
     },
     //#endregion
     //#region 自动样式方法
-    // 计算地图网格样式
+    // 计算每一个网格的样式
+    // 以0~0网格为基准，0~0网格的坐标为（320, 192）
+    // 即10 * 32和6 * 32
     GetStyle(grid) {
-      let style = {};
+      const style = {};
       const cx = 320;
       const cy = 192;
       style['transform'] = `translate(${cx + grid.x * 32}px, ${cy + grid.y * 32}px)`;
-      let mapId = grid.resNum || 0;
-      if (mapId > 0) {
-        mapId--;
-        const mapY = Math.floor(mapId / 8);
-        const mapX = Math.floor(mapId % 8);
+      // 获取地图资源的Id
+      const resId = grid.resId;
+      // 获取使用到的切图在地图之中的序号
+      let resNum = grid.resNum || 0;
+      // 还存在一种情况为空地图，所以序号计数从1开始
+      if (resNum > 0) {
+        resNum--;
+        const mapY = Math.floor(resNum / 8);
+        const mapX = Math.floor(resNum % 8);
         style['background'] = `
-          url('/image/map/0.png')
+          url('/image/map/${resId}.png')
           no-repeat
           -${mapX * 32}px
           -${mapY * 32}px

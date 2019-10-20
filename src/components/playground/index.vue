@@ -28,12 +28,14 @@
 <template>
   <div class="playground">
     <smartMap
-      ref="smtMap"
-      :playerPos="{ x: player.x, y: player.y }"
+      :playerPos="{
+        x: player.x,
+        y: player.y,
+      }"
     />
     <player
       nickname="鸡毛巾"
-      :imgid="3"
+      :imgid="0"
       v-model="player"
     />
     <span class="pos-span">{{`x:${player.x} y:${player.y}`}}</span>
@@ -63,7 +65,7 @@ export default {
       //#region 页面内容绑定数据
       player: {
         x: 0,
-        y: 0,
+        y: 3,
         dir: 1,
         ges: 0,
       },

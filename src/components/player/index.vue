@@ -25,9 +25,13 @@ import npc from '@/components/npc';
 // 按键方向映射
 const KeyDirMap = {
   ArrowUp: 0,
+  KeyW: 0,
   ArrowDown: 1,
+  KeyS: 1,
   ArrowLeft: 2,
+  KeyA: 2,
   ArrowRight: 3,
+  KeyD: 3,
 };
 
 export default {
@@ -57,6 +61,7 @@ export default {
     //#region 页面事件方法
     // 方向键事件
     handleKeyDown(e) {
+      console.log(e.code);
       const newDir = KeyDirMap[e.code];
       if (isFinite(newDir)) {
         this.Move(newDir);

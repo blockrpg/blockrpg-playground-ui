@@ -1,22 +1,29 @@
-import axios, {AxiosResponse} from 'axios';
+import axios, {AxiosResponse, AxiosError} from 'axios';
 import { MessageBox } from 'element-ui';
 
 const onResponse = <T = any> (rsp: AxiosResponse): Promise<AxiosResponse<T>> => {
-  if (rsp.data && rsp.data.code === 200) {
-    if (rsp.data.message) {
-      const message = rsp.data.message;
-      if (!rsp.data.success && message) {
-        MessageBox({
-          type: 'error',
-          message,
-        });
-      }
+  if (rsp.status === 200) {
+    const result = rsp.data;
+    if (result &&
+        !result.success &&
+        result.message) {
+      MessageBox({
+        type: 'error',
+        message: result.message,
+      });
     }
-    return Promise.resolve(rsp.data);
+    return Promise.resolve(result);
   } else {
     console.error('网络请求错误');
   }
   return Promise.reject(rsp);
+};
+
+const onResponseError = (err: AxiosError) => {
+  if ((err.response as any).status === 401) {
+    window.location.href = '/login';
+  }
+  return Promise.reject(err);
 };
 
 export const createAxios = () => {
@@ -25,7 +32,7 @@ export const createAxios = () => {
     withCredentials: true,
   };
   const http = axios.create(config);
-  http.interceptors.response.use(onResponse);
+  http.interceptors.response.use(onResponse, onResponseError);
   return http;
 };
 
