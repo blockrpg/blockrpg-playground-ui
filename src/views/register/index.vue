@@ -80,11 +80,13 @@
           },
         ]">
         <el-input
+          ref="rePasswordInput"
           placeholder="请再次输入玩家登录密码以确认"
           clearable
           type="password"
           autocomplete="new-password"
-          v-model="regForm.rePassword">
+          v-model="regForm.rePassword"
+          @keydown.native.enter="handleRegClick">
         </el-input>
       </el-form-item>
       <el-form-item>
@@ -193,26 +195,35 @@ export default {
     },
     // 注册玩家按钮点击
     handleToLoginClick() {
-      this.$router.replace({
+      this.$router.push({
         name: 'view-login',
       });
     },
     //#endregion
     //#region 业务逻辑方法
     async registerPlayer(name, password) {
-      const hashPwd = this.hashPassword(password);
-      const params = {
-        name,
-        password: hashPwd,
-      };
-      const result = await api.register(params);
-      if (result.success) {
-        this.$msgbox({
-          title: '注册成功',
-          type: 'success',
-          message: `您的账号为：${result.object.account}，可使用账号或昵称登录`,
-        });
-      }
+      const inputDOM = this.$refs['rePasswordInput'].$el.querySelector('input');
+      inputDOM.blur();
+      this.$nextTick(async () => {
+        const hashPwd = this.hashPassword(password);
+        const params = {
+          name,
+          password: hashPwd,
+        };
+        const result = await api.register(params);
+        if (result.success) {
+          this.$msgbox({
+            title: '注册成功',
+            type: 'success',
+            message: `您的账号为：${result.object.account}，可使用账号或昵称登录`,
+            callback: () => {
+              this.$router.push({
+                name: 'view-login',
+              });
+            },
+          });
+        }
+      });
     },
     //#endregion
     //#region 接口访问方法

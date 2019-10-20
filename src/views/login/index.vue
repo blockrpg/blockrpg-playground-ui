@@ -56,10 +56,12 @@
           },
         ]">
         <el-input
+          ref="focusInput"
           placeholder="请输入玩家登录密码"
           clearable
           type="password"
-          v-model="loginForm.password">
+          v-model="loginForm.password"
+          @keydown.native.enter="handleLoginClick">
         </el-input>
       </el-form-item>
       <el-form-item>
@@ -144,26 +146,35 @@ export default {
     },
     // 注册玩家按钮点击
     handleToRegClick() {
-      this.$router.replace({
+      this.$router.push({
         name: 'view-register',
       });
     },
     //#endregion
     //#region 业务逻辑方法
     // 玩家登录逻辑
-    async playerLogin(input, password) {
-      const params = {
-        input,
-        password: this.hashPassword(password),
-      };
-      const result = await api.login(params);
-      if (result.success) {
-        this.$msgbox({
-          title: '登录成功',
-          type: 'success',
-          message: `点击确定进入游戏`,
-        });
-      }
+    playerLogin(input, password) {
+      const inputDOM = this.$refs['focusInput'].$el.querySelector('input');
+      inputDOM.blur();
+      this.$nextTick(async () => {
+        const params = {
+          input,
+          password: this.hashPassword(password),
+        };
+        const result = await api.login(params);
+        if (result.success) {
+          this.$msgbox({
+            title: '登录成功',
+            type: 'success',
+            message: `点击确定进入游戏`,
+            callback: () => {
+              this.$router.push({
+                name: 'view-playground',
+              });
+            },
+          });
+        }
+      });
     },
     //#endregion
     //#region 接口访问方法
