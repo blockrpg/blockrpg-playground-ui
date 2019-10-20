@@ -30,6 +30,10 @@
 
 <script>
 import * as api from '@/api/mapBlock';
+import { Password } from 'blockrpg-core/built/Password';
+import { Point } from 'blockrpg-core/built/Point';
+import { Space } from 'blockrpg-core/built/Space';
+import { Rect } from 'blockrpg-core/built/Rect';
 
 const BlankGrid = {
   pass: false,
@@ -38,7 +42,7 @@ const BlankGrid = {
 };
 
 export default {
-  name: 'smartMap',
+  name: 'smart-map',
   props: {
     // 玩家位置
     playerPos: {
@@ -66,9 +70,9 @@ export default {
   },
   watch: {
     // 监听玩家当前所处区块变化
-    autoCurBlockXy: {
+    autoPlayerBlockPoint: {
       handler(nv, ov) {
-        if (!ov || nv.id !== ov.id) {
+        if (!ov || nv.Id !== ov.Id) {
           this.handleCurBlockChange(nv, !ov);
         }
       },
@@ -86,11 +90,11 @@ export default {
           // console.log('top push');
         }
         if (nv.top > ov.top) {
-          this.grids = this.grids.filter(grid => grid.y >= nv.top);
+          this.grids = this.grids.filter((grid) => grid.y >= nv.top);
           // console.log('top pop');
         }
         if (nv.bottom < ov.bottom) {
-          this.grids = this.grids.filter(grid => grid.y <= nv.bottom);
+          this.grids = this.grids.filter((grid) => grid.y <= nv.bottom);
           // console.log('bottom pop');
         }
         if (nv.bottom > ov.bottom) {
@@ -112,11 +116,11 @@ export default {
           // console.log('left push');
         }
         if (nv.left > ov.left) {
-          this.grids = this.grids.filter(grid => grid.x >= nv.left);
+          this.grids = this.grids.filter((grid) => grid.x >= nv.left);
           // console.log('left pop');
         }
         if (nv.right < ov.right) {
-          this.grids = this.grids.filter(grid => grid.x <= nv.right);
+          this.grids = this.grids.filter((grid) => grid.x <= nv.right);
           // console.log('right pop');
         }
         if (nv.right > ov.right) {
@@ -148,13 +152,17 @@ export default {
       style['transform'] = `translate(${left}px, ${top}px)`;
       return style;
     },
-    // 自动计算当前玩家所在的区块坐标
-    autoCurBlockXy() {
-      return this.getBlockSpace(this.playerPos.x, this.playerPos.y);
+    // 当前玩家所在的空间点
+    autoPlayerSpacePoint() {
+      return new Point(this.playerPos.x, this.playerPos.y);
+    },
+    // 当前玩家所在的坐标点
+    autoPlayerBlockPoint() {
+      return Space.ToBlock(this.autoPlayerSpacePoint);
     },
     // 自动计算渲染网格范围
     autoRenderSize() {
-      let result = {};
+      const result = {};
       // 获取渲染空间范围
       const top = this.playerPos.y - 34;
       const bottom = this.playerPos.y + 28;
@@ -178,8 +186,8 @@ export default {
         for (let j = 0; j < width; ++j) {
           const x = opx + j;
           grids.push({
-            x: x,
-            y: y,
+            x,
+            y,
             ...this.readGridFromBuffer(x, y),
           });
         }
@@ -193,15 +201,14 @@ export default {
     // 玩家当前所处区块变化事件
     async handleCurBlockChange(nv, init = false) {
       // 生成附近区块九宫格
-      const grids = this.nineGrids(nv.x, nv.y);
+      const grids = nv.Nine;
       // 已经缓存的block的id
       const existingBlockIds = Object.keys(this.blockBuffer);
       // 需要从后端获取的block
-      const newBlocks = grids.filter(grid => existingBlockIds.every(eid => eid !== grid.id));
+      const newBlocks = grids.filter((grid) => existingBlockIds.every((eid) => eid !== grid.Id));
       // 如果有需要从后端更新的block
       if (newBlocks.length > 0) {
-        // 智能生成更新矩形
-        const rect = this.catchRect(newBlocks);
+        const rect = Rect.FromPoints(newBlocks);
         // 从后端更新block
         await this.fetchBlocks(rect);
         // 如果是第一次更新缓存，则需要初始化地图界面
@@ -221,52 +228,6 @@ export default {
         size.right,
         size.bottom,
       );
-    },
-    // 传入xy获取周围的九宫格块坐标
-    nineGrids(x, y) {
-      const px = x - 1;
-      const py = y - 1;
-      let grids = [];
-      for (let i = 0; i < 3; ++i) {
-        for (let j = 0; j < 3; ++j) {
-          grids.push({
-            id: `${px + j}~${py + i}`,
-            x: px + j,
-            y: py + i,
-          });
-        }
-      }
-      return grids;
-    },
-    // 矩形捕捉器
-    catchRect(blocks) {
-      const minX = Math.min(...blocks.map(item => item.x));
-      const maxX = Math.max(...blocks.map(item => item.x));
-      const minY = Math.min(...blocks.map(item => item.y));
-      const maxY = Math.max(...blocks.map(item => item.y));
-      const width = maxX - minX + 1;
-      const height = maxY - minY + 1;
-      return {
-        x: minX,
-        y: minY,
-        w: width,
-        h: height,
-      };
-    },
-    // 传入网格坐标获取网格所属的block信息
-    getBlock(x, y) {
-      const bx = Math.floor((x + 10) / 21);
-      const by = Math.floor((y + 6) / 13);
-      return {
-        id: `${bx}~${by}`,
-        x: bx,
-        y: by,
-      };
-    },
-    // 传入空间坐标获取所属的block信息
-    getBlockSpace(x, y) {
-      const coordinate = this.getGridCoordinate(x, y);
-      return this.getBlock(coordinate.x, coordinate.y);
     },
     // 传入网格坐标获取该网格对应的block信息以及其内坐标，偏移
     getBlockCoordinate(x, y) {
@@ -294,15 +255,10 @@ export default {
         id: blockId,
         x: bx,
         y: by,
-        px: px,
-        py: py,
-        offset: offset,
+        px,
+        py,
+        offset,
       };
-    },
-    // 传入空间坐标获取对应的block信息以及其内坐标，偏移
-    getBlockCoordinateSpace(x, y) {
-      const coordinate = this.getGridCoordinate(x, y);
-      return this.getBlockCoordinate(coordinate.x, coordinate.y);
     },
     // 从缓存的区块中读取网格，这里传入的是网格坐标
     readGridFromBuffer(x, y) {
@@ -326,7 +282,7 @@ export default {
             id: `${px}~${py}`,
             x: px,
             y: py,
-            ...this.readGridFromBuffer(px, py)
+            ...this.readGridFromBuffer(px, py),
           });
         }
       }
@@ -346,18 +302,18 @@ export default {
     //#region 接口访问方法
     // 从后端获取block
     async fetchBlocks(rect) {
-      let params = {
-        x: rect.x,
-        y: rect.y,
-        w: rect.w,
-        h: rect.h,
+      const params = {
+        x: rect.X,
+        y: rect.Y,
+        w: rect.Width,
+        h: rect.Height,
         mapId: 'test',
       };
-      let result = await api.queryRect(params);
+      const result = await api.queryRect(params);
       if (result.success) {
         const list = result.object || [];
         // 把获取的block写入缓存
-        list.forEach(item => {
+        list.forEach((item) => {
           const key = `${item.x}~${item.y}`;
           this.blockBuffer[key] = item;
         });
@@ -399,7 +355,7 @@ export default {
         `;
       }
       return style;
-    }
+    },
     //#endregion
     //#region 其他方法
     //#endregion

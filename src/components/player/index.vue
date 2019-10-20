@@ -61,7 +61,6 @@ export default {
     //#region 页面事件方法
     // 方向键事件
     handleKeyDown(e) {
-      console.log(e.code);
       const newDir = KeyDirMap[e.code];
       if (isFinite(newDir)) {
         this.Move(newDir);

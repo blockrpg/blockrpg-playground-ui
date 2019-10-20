@@ -2284,10 +2284,10 @@ blob@0.0.5:
   resolved "https://registry.yarnpkg.com/blob/-/blob-0.0.5.tgz#d680eeef25f8cd91ad533f5b01eed48e64caf683"
   integrity sha512-gaqbzQPqOoamawKg0LGVd7SzLgXS+JH61oWprSLH+P+abTczqJbhTR8CmJ2u9/bUYNmHTGJx/UEmn6doAvvuig==
 
-blockrpg-core@^1.6.7:
-  version "1.6.7"
-  resolved "https://registry.yarnpkg.com/blockrpg-core/-/blockrpg-core-1.6.7.tgz#0e62598880960c526d79b8d73bdb8be896a02153"
-  integrity sha512-HXyYcscP2nK7rXPzifVd+F6xWDM87NhpJbma1C3wxbysKjF7Dp3tC4xPXQfXAVND01IvxdaIt2VUG8pHV5BFIw==
+blockrpg-core@^1.6.9:
+  version "1.6.9"
+  resolved "https://registry.yarnpkg.com/blockrpg-core/-/blockrpg-core-1.6.9.tgz#8fd274026d875cd833bf9f47be058b84fdcb5f46"
+  integrity sha512-lQxuKIrJdqORsaqxTprd2SFwSIwGAewHlVi+U3flg54FFPTg6ZG4WiSqfmt43hLhwGkeza/w6r7Wo0OvmxZY6w==
   dependencies:
     "@types/bluebird" "^3.5.28"
     "@types/cookie" "^0.3.3"

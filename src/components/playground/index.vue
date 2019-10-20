@@ -28,6 +28,7 @@
 <template>
   <div class="playground">
     <smartMap
+      ref="smtMap"
       :playerPos="{
         x: player.x,
         y: player.y,
@@ -37,6 +38,7 @@
       nickname="鸡毛巾"
       :imgid="0"
       v-model="player"
+      :legal="moveLegal"
     />
     <span class="pos-span">{{`x:${player.x} y:${player.y}`}}</span>
     <pocket />
@@ -95,6 +97,10 @@ export default {
     //#region 自动样式方法
     //#endregion
     //#region 其他方法
+    moveLegal(pos) {
+      const grid = this.$refs.smtMap.readGridFromBufferSpace(pos.x, pos.y);
+      return grid.pass;
+    },
     //#endregion
   },
   created() {},
