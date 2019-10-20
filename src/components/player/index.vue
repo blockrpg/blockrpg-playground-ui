@@ -1,9 +1,7 @@
 <!--局部样式-->
 <style scoped>
-.playground-warp {
-  display: flex;
-  justify-content: center;
-  padding-top: 50px;
+.player {
+  transform: translate(312px, 176px);
 }
 </style>
 
@@ -11,28 +9,30 @@
 <style></style>
 
 <template>
-  <xpage
-    class="view-playground"
-    name="游乐场">
-    <template
-      v-slot:right>
-      <el-button
-        @click="handleExitClick"
-        type="text">
-        退出游戏
-      </el-button>
-    </template>
-    <div class="playground-warp">
-      <playground />
-    </div>
-  </xpage>
+  <actor
+    class="player"
+    :nickname="nickname"
+    :nicknameAlways="nicknameAlways"
+    :imgid="imgid"
+    :dir="innerValue.dir"
+    :ges="innerValue.ges">
+  </actor>
 </template>
 
 <script>
-import playground from '@/components/playground';
+import npc from '@/components/npc';
+
+// 按键方向映射
+const KeyDirMap = {
+  ArrowUp: 0,
+  ArrowDown: 1,
+  ArrowLeft: 2,
+  ArrowRight: 3,
+};
 
 export default {
-  name: 'view-playground',
+  name: 'player',
+  mixins: [npc],
   props: {},
   data() {
     return {
@@ -55,11 +55,12 @@ export default {
   },
   methods: {
     //#region 页面事件方法
-    // 退出游戏事件
-    handleExitClick() {
-      this.$router.push({
-        name: 'view-login',
-      });
+    // 方向键事件
+    handleKeyDown(e) {
+      const newDir = KeyDirMap[e.code];
+      if (isFinite(newDir)) {
+        this.Move(newDir);
+      }
     },
     //#endregion
     //#region 业务逻辑方法
@@ -74,9 +75,12 @@ export default {
     //#endregion
   },
   created() {},
-  mounted() {},
-  components: {
-    playground,
+  mounted() {
+    document.addEventListener('keydown', this.handleKeyDown);
   },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  },
+  components: {},
 };
 </script>

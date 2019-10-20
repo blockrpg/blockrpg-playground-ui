@@ -1,9 +1,35 @@
 <!--局部样式-->
 <style scoped>
-.playground-warp {
+.pocket {
+  position: absolute;
+  z-index: 100;
+  bottom: 0px;
+  left: 183px;
+}
+.pocket ul {
+  list-style-type: none;
+  margin: 0px;
+  padding: 10px;
   display: flex;
-  justify-content: center;
-  padding-top: 50px;
+}
+.pocket ul > li {
+  width: 38px;
+  height: 38px;
+  box-sizing: border-box;
+  border: solid 2px #eee;
+  box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  background-color: rgba(0, 0, 0, 0.3);
+  margin-right: 1px;
+  padding: 3px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.pocket ul > li:hover {
+  transform: scale(1.1);
+}
+.pocket ul > li:last-of-type {
+  margin-right: 0px;
 }
 </style>
 
@@ -11,28 +37,22 @@
 <style></style>
 
 <template>
-  <xpage
-    class="view-playground"
-    name="游乐场">
-    <template
-      v-slot:right>
-      <el-button
-        @click="handleExitClick"
-        type="text">
-        退出游戏
-      </el-button>
-    </template>
-    <div class="playground-warp">
-      <playground />
-    </div>
-  </xpage>
+  <div class="pocket">
+    <ul>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
 </template>
 
 <script>
-import playground from '@/components/playground';
-
 export default {
-  name: 'view-playground',
+  name: 'pocket',
   props: {},
   data() {
     return {
@@ -55,12 +75,6 @@ export default {
   },
   methods: {
     //#region 页面事件方法
-    // 退出游戏事件
-    handleExitClick() {
-      this.$router.push({
-        name: 'view-login',
-      });
-    },
     //#endregion
     //#region 业务逻辑方法
     //#endregion
@@ -75,8 +89,6 @@ export default {
   },
   created() {},
   mounted() {},
-  components: {
-    playground,
-  },
+  components: {},
 };
 </script>
