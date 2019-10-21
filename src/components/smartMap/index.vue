@@ -154,7 +154,7 @@ export default {
     autoPlayerBlockPoint() {
       return Space.ToBlock(this.autoPlayerSpacePoint);
     },
-    // 自动计算渲染网格范围
+    // 渲染的网格矩形范围
     autoRenderSize() {
       const result = {};
       // 获取渲染空间范围
@@ -168,25 +168,18 @@ export default {
       result.right = Math.floor((right + 2) / 5);
       return result;
     },
-    // 显示的地图网格
-    autoGrids() {
-      const opx = this.autoRenderSize.left;
-      const opy = this.autoRenderSize.top;
-      const width = this.autoRenderSize.right - this.autoRenderSize.left + 1;
-      const height = this.autoRenderSize.bottom - this.autoRenderSize.top + 1;
-      const grids = [];
-      for (let i = 0; i < height; ++i) {
-        const y = opy + i;
-        for (let j = 0; j < width; ++j) {
-          const x = opx + j;
-          grids.push({
-            x,
-            y,
-            ...this.readGridFromBuffer(new Point(x, y)),
-          });
-        }
-      }
-      return grids;
+    // 渲染的网格矩形范围
+    autoRenderRect() {
+      // 获取渲染空间范围
+      const top = this.playerPos.y - 34;
+      const bottom = this.playerPos.y + 28;
+      const left = this.playerPos.x - 51;
+      const right = this.playerPos.x + 51;
+      // 转换为两个网格点
+      const pt1 = Space.ToGrid(new Point(left, top));
+      const pt2 = Space.ToGrid(new Point(right, bottom));
+      // 构建范围矩形
+      return Rect.FromTwoPoints(pt1, pt2);
     },
     //#endregion
   },
@@ -215,13 +208,7 @@ export default {
     //#region 业务逻辑方法
     // 初始化地图
     initMap() {
-      const size = this.autoRenderSize;
-      this.grids = this.readGridFromBufferSize(
-        size.left,
-        size.top,
-        size.right,
-        size.bottom,
-      );
+      this.grids = this.readGridsFromBufferRect(this.autoRenderRect);
     },
     // 获取网格所属的Block坐标点和Block内偏移信息
     // 传入网格坐标点，返回Block点，Block内Point点，Block内偏移地址Offset
@@ -270,7 +257,7 @@ export default {
 
     // 传入矩形对象，从缓存中读取多个网格（会添加坐标）
     readGridsFromBufferRect(rect) {
-      rect.Points.map(point => {
+      const result = rect.Points.map(point => {
         return {
           id: point.Id,
           x: point.X,
@@ -278,6 +265,7 @@ export default {
           ...this.readGridFromBuffer(point),
         };
       });
+      return result;
     },
 
     // 传入网格坐标矩形范围，从区块缓存中读取多个网格（会添加坐标）
