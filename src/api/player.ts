@@ -9,3 +9,8 @@ export const register = (params: any) => {
 export const login = (params: any) => {
   return http.post(`login/player/login`, params);
 };
+
+// 查询登录玩家的当前信息
+export const curInfo = () => {
+  return http.post(`playground/player/curinfo`);
+};

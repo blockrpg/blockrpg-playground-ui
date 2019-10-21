@@ -14,6 +14,11 @@ module.exports = {
         changeOrigin: true,
         secure: false,
       },
+      '/api/playground': {
+        target: 'http://localhost:3003/',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 };

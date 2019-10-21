@@ -81,7 +81,7 @@ export default {
             ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
               new Point(nv.X1, nv.Y1),
               new Point(ov.X2, ov.Y1 - 1),
-            ))
+            )),
           );
         }
         // Top Pop
@@ -98,7 +98,7 @@ export default {
             ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
               new Point(ov.X1, ov.Y2 + 1),
               new Point(nv.X2, nv.Y2),
-            ))
+            )),
           );
         }
         // Left Push
@@ -107,7 +107,7 @@ export default {
             ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
               new Point(nv.X1, nv.Y1),
               new Point(ov.X1 - 1, ov.Y2),
-            ))
+            )),
           );
         }
         // Left Pop
@@ -124,7 +124,7 @@ export default {
             ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
               new Point(ov.X2 + 1, ov.Y1),
               new Point(nv.X2, nv.Y2),
-            ))
+            )),
           );
         }
       },
@@ -193,6 +193,59 @@ export default {
     },
     //#endregion
     //#region 业务逻辑方法
+    // 从后端获取block
+    async fetchBlocks(rect) {
+      const params = {
+        x: rect.X,
+        y: rect.Y,
+        w: rect.Width,
+        h: rect.Height,
+        mapId: 'test',
+      };
+      const result = await api.queryRect(params);
+      if (result.success) {
+        const list = result.object || [];
+        // 把获取的block写入缓存
+        list.forEach((item) => {
+          const key = `${item.x}~${item.y}`;
+          this.blockBuffer[key] = item;
+        });
+      }
+    },
+    //#endregion
+    //#region 接口访问方法
+    //#endregion
+    //#region 数据转换方法
+    //#endregion
+    //#region 自动样式方法
+    // 计算每一个网格的样式
+    // 以0~0网格为基准，0~0网格的坐标为（320, 192）
+    // 即10 * 32和6 * 32
+    GetStyle(grid) {
+      const style = {};
+      const cx = 320;
+      const cy = 192;
+      style['transform'] = `translate(${cx + grid.x * 32}px, ${cy + grid.y * 32}px)`;
+      // 获取地图资源的Id
+      const resId = grid.resId;
+      // 获取使用到的切图在地图之中的序号
+      let resNum = grid.resNum || 0;
+      // 还存在一种情况为空地图，所以序号计数从1开始
+      if (resNum > 0) {
+        resNum--;
+        const mapY = Math.floor(resNum / 8);
+        const mapX = Math.floor(resNum % 8);
+        style['background'] = `
+          url('/image/map/${resId}.png')
+          no-repeat
+          -${mapX * 32}px
+          -${mapY * 32}px
+        `;
+      }
+      return style;
+    },
+    //#endregion
+    //#region 其他方法
     // 初始化地图
     initMap() {
       this.grids = this.readGridsFromBufferRect(this.autoRenderRect);
@@ -243,7 +296,7 @@ export default {
     },
     // 传入矩形对象，从缓存中读取多个网格（会添加坐标）
     readGridsFromBufferRect(rect) {
-      const result = rect.Points.map(point => {
+      const result = rect.Points.map((point) => {
         return {
           id: point.Id,
           x: point.X,
@@ -253,59 +306,6 @@ export default {
       });
       return result;
     },
-    //#endregion
-    //#region 接口访问方法
-    // 从后端获取block
-    async fetchBlocks(rect) {
-      const params = {
-        x: rect.X,
-        y: rect.Y,
-        w: rect.Width,
-        h: rect.Height,
-        mapId: 'test',
-      };
-      const result = await api.queryRect(params);
-      if (result.success) {
-        const list = result.object || [];
-        // 把获取的block写入缓存
-        list.forEach((item) => {
-          const key = `${item.x}~${item.y}`;
-          this.blockBuffer[key] = item;
-        });
-      }
-    },
-    //#endregion
-    //#region 数据转换方法
-    //#endregion
-    //#region 自动样式方法
-    // 计算每一个网格的样式
-    // 以0~0网格为基准，0~0网格的坐标为（320, 192）
-    // 即10 * 32和6 * 32
-    GetStyle(grid) {
-      const style = {};
-      const cx = 320;
-      const cy = 192;
-      style['transform'] = `translate(${cx + grid.x * 32}px, ${cy + grid.y * 32}px)`;
-      // 获取地图资源的Id
-      const resId = grid.resId;
-      // 获取使用到的切图在地图之中的序号
-      let resNum = grid.resNum || 0;
-      // 还存在一种情况为空地图，所以序号计数从1开始
-      if (resNum > 0) {
-        resNum--;
-        const mapY = Math.floor(resNum / 8);
-        const mapX = Math.floor(resNum % 8);
-        style['background'] = `
-          url('/image/map/${resId}.png')
-          no-repeat
-          -${mapX * 32}px
-          -${mapY * 32}px
-        `;
-      }
-      return style;
-    },
-    //#endregion
-    //#region 其他方法
     //#endregion
   },
   created() {},

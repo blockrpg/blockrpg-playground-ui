@@ -27,21 +27,27 @@
 
 <template>
   <div class="playground">
-    <smartMap
-      ref="smtMap"
-      :playerPos="{
-        x: player.x,
-        y: player.y,
-      }"
-    />
-    <player
-      nickname="鸡毛巾"
-      :imgid="0"
-      v-model="player"
-      :legal="moveLegal"
-    />
-    <span class="pos-span">{{`x:${player.x} y:${player.y}`}}</span>
-    <pocket />
+    <template v-if="ready">
+      <smartMap
+        ref="smtMap"
+        :playerPos="{
+          x: player.x,
+          y: player.y,
+        }"
+      />
+      <player
+        :nickname="playerName"
+        :imgid="playerImage"
+        v-model="player"
+        :legal="moveLegal"
+      />
+      <span
+        class="pos-span">
+        {{`x:${player.x} y:${player.y}`}}
+      </span>
+      <pocket
+      />
+    </template>
   </div>
 </template>
 
@@ -57,6 +63,7 @@ import player from '@/components/player';
 import pocket from '@/components/pocket';
 import smartMap from '@/components/smartMap';
 import { Point } from 'blockrpg-core/built/Point';
+import * as APIPlayer from '@/api/player';
 
 export default {
   name: 'viewport',
@@ -64,14 +71,12 @@ export default {
   data() {
     return {
       //#region 页面对象
+      ready: false,
       //#endregion
       //#region 页面内容绑定数据
-      player: {
-        x: 0,
-        y: 3,
-        dir: 1,
-        ges: 0,
-      },
+      playerName: '鸡毛巾',
+      playerImage: 0,
+      player: {},
       //#endregion
       //#region 页面样式绑定数据
       //#endregion
@@ -90,6 +95,21 @@ export default {
     //#region 页面事件方法
     //#endregion
     //#region 业务逻辑方法
+    async getPlayerInfo() {
+      const result = await APIPlayer.curInfo();
+      if (result.success) {
+        const info = result.object;
+        this.playerName = info.name;
+        this.playerImage = Number(info.image);
+        this.player = {
+          x: info.x,
+          y: info.y,
+          dir: info.dir,
+          ges: info.ges,
+        };
+        this.ready = true;
+      }
+    },
     //#endregion
     //#region 接口访问方法
     //#endregion
@@ -105,7 +125,9 @@ export default {
     //#endregion
   },
   created() {},
-  mounted() {},
+  mounted() {
+    this.getPlayerInfo();
+  },
   components: {
     player,
     pocket,
