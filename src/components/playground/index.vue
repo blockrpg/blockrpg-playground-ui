@@ -56,6 +56,7 @@ import actor from '@/components/actor';
 import player from '@/components/player';
 import pocket from '@/components/pocket';
 import smartMap from '@/components/smartMap';
+import { Point } from 'blockrpg-core/built/Point';
 
 export default {
   name: 'viewport',
@@ -98,7 +99,7 @@ export default {
     //#endregion
     //#region 其他方法
     moveLegal(pos) {
-      const grid = this.$refs.smtMap.readGridFromBufferSpace(pos.x, pos.y);
+      const grid = this.$refs.smtMap.readGridFromBufferSpace(new Point(pos.x, pos.y));
       return grid.pass;
     },
     //#endregion

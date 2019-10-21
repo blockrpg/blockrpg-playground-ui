@@ -35,16 +35,10 @@ import { Point } from 'blockrpg-core/built/Point';
 import { Space } from 'blockrpg-core/built/Space';
 import { Rect } from 'blockrpg-core/built/Rect';
 
-const BlankGrid = {
-  pass: false,
-  resId: 1,
-  resNum: 0,
-};
-
 export default {
   name: 'smart-map',
   props: {
-    // 玩家位置
+    // 传入的玩家位置
     playerPos: {
       type: Object,
       default() {
@@ -152,11 +146,11 @@ export default {
       style['transform'] = `translate(${left}px, ${top}px)`;
       return style;
     },
-    // 当前玩家所在的空间点
+    // 当前玩家所在的空间坐标点
     autoPlayerSpacePoint() {
       return new Point(this.playerPos.x, this.playerPos.y);
     },
-    // 当前玩家所在的坐标点
+    // 当前玩家所在的地图块的坐标点
     autoPlayerBlockPoint() {
       return Space.ToBlock(this.autoPlayerSpacePoint);
     },
@@ -188,7 +182,7 @@ export default {
           grids.push({
             x,
             y,
-            ...this.readGridFromBuffer(x, y),
+            ...this.readGridFromBuffer(new Point(x, y)),
           });
         }
       }
@@ -229,13 +223,12 @@ export default {
         size.bottom,
       );
     },
-    // 传入网格坐标获取该网格对应的block信息以及其内坐标，偏移
-    getBlockCoordinate(x, y) {
-      const fx = x + 10;
-      const fy = y + 6;
-      const bx = Math.floor(fx / 21);
-      const by = Math.floor(fy / 13);
-      const blockId = `${bx}~${by}`;
+    // 获取网格所属的Block坐标点和Block内偏移信息
+    // 传入网格坐标点，返回Block点，Block内Point点，Block内偏移地址Offset
+    getBlockCoordinate(gridPt) {
+      const blockPt = Space.GridToBlock(gridPt);
+      const fx = gridPt.X + 10;
+      const fy = gridPt.Y + 6;
       let px = 0;
       if (fx >= 0) {
         px = fx % 21;
@@ -250,26 +243,29 @@ export default {
         const afy = Math.abs(fy) - 1;
         py = 12 - (afy % 13);
       }
+      const point = new Point(px, py);
       const offset = py * 21 + px;
       return {
-        id: blockId,
-        x: bx,
-        y: by,
-        px,
-        py,
-        offset,
+        Block: blockPt,
+        Point: point,
+        Offset: offset,
       };
     },
     // 从缓存的区块中读取网格，这里传入的是网格坐标
-    readGridFromBuffer(x, y) {
-      const info = this.getBlockCoordinate(x, y);
-      const result = ((this.blockBuffer[info.id] || {}).grids || [])[info.offset] || BlankGrid;
+    readGridFromBuffer(gridPt) {
+      // 定义空白网格
+      const BlankGrid = {
+        pass: false,
+        resId: 0,
+        resNum: 0,
+      };
+      const info = this.getBlockCoordinate(gridPt);
+      const result = ((this.blockBuffer[info.Block.Id] || {}).grids || [])[info.Offset] || BlankGrid;
       return result;
     },
     // 从缓存的区块中读取网格，这里传入的是空间坐标
-    readGridFromBufferSpace(x, y) {
-      const coordinate = this.getGridCoordinate(x, y);
-      return this.readGridFromBuffer(coordinate.x, coordinate.y);
+    readGridFromBufferSpace(spacePt) {
+      return this.readGridFromBuffer(Space.ToGrid(spacePt));
     },
     // 传入网格坐标矩形范围，从区块缓存中读取多个网格（会添加坐标）
     readGridFromBufferRect(x, y, w, h) {
@@ -282,7 +278,7 @@ export default {
             id: `${px}~${py}`,
             x: px,
             y: py,
-            ...this.readGridFromBuffer(px, py),
+            ...this.readGridFromBuffer(new Point(px, py)),
           });
         }
       }
@@ -321,13 +317,6 @@ export default {
     },
     //#endregion
     //#region 数据转换方法
-    // 空间坐标变换为网格坐标
-    getGridCoordinate(x, y) {
-      return {
-        x: Math.floor((x + 2) / 5),
-        y: Math.floor((y + 2) / 5),
-      };
-    },
     //#endregion
     //#region 自动样式方法
     // 计算每一个网格的样式
