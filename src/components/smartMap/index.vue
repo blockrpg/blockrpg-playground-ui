@@ -267,6 +267,19 @@ export default {
     readGridFromBufferSpace(spacePt) {
       return this.readGridFromBuffer(Space.ToGrid(spacePt));
     },
+
+    // 传入矩形对象，从缓存中读取多个网格（会添加坐标）
+    readGridsFromBufferRect(rect) {
+      rect.Points.map(point => {
+        return {
+          id: point.Id,
+          x: point.X,
+          y: point.Y,
+          ...this.readGridFromBuffer(point),
+        };
+      });
+    },
+
     // 传入网格坐标矩形范围，从区块缓存中读取多个网格（会添加坐标）
     readGridFromBufferRect(x, y, w, h) {
       const result = [];
