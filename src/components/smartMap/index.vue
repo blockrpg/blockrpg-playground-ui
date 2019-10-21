@@ -72,59 +72,60 @@ export default {
       },
       immediate: true,
     },
-    autoRenderSize: {
+    // 监听显示区域变化以更新具体的显示网格数据
+    autoRenderRect: {
       handler(nv, ov) {
-        if (nv.top < ov.top) {
-          this.grids.push(...this.readGridFromBufferSize(
-            nv.left,
-            nv.top,
-            nv.right,
-            ov.top - 1,
-          ));
-          // console.log('top push');
+        // Top Push
+        if (nv.Y1 < ov.Y1) {
+          this.grids.push(
+            ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
+              new Point(nv.X1, nv.Y1),
+              new Point(ov.X2, ov.Y1 - 1),
+            ))
+          );
         }
-        if (nv.top > ov.top) {
-          this.grids = this.grids.filter((grid) => grid.y >= nv.top);
-          // console.log('top pop');
+        // Top Pop
+        if (nv.Y1 > ov.Y1) {
+          this.grids = this.grids.filter((grid) => grid.y >= nv.Y1);
         }
-        if (nv.bottom < ov.bottom) {
-          this.grids = this.grids.filter((grid) => grid.y <= nv.bottom);
-          // console.log('bottom pop');
+        // Bottom Pop
+        if (nv.Y2 < ov.Y2) {
+          this.grids = this.grids.filter((grid) => grid.y <= nv.Y2);
         }
-        if (nv.bottom > ov.bottom) {
-          this.grids.push(...this.readGridFromBufferSize(
-            nv.left,
-            ov.bottom + 1,
-            nv.right,
-            nv.bottom,
-          ));
-          // console.log('bottom push');
+        // Bottom Push
+        if (nv.Y2 > ov.Y2) {
+          this.grids.push(
+            ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
+              new Point(ov.X1, ov.Y2 + 1),
+              new Point(nv.X2, nv.Y2),
+            ))
+          );
         }
-        if (nv.left < ov.left) {
-          this.grids.push(...this.readGridFromBufferSize(
-            nv.left,
-            nv.top,
-            ov.left - 1,
-            nv.bottom,
-          ));
-          // console.log('left push');
+        // Left Push
+        if (nv.X1 < ov.X1) {
+          this.grids.push(
+            ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
+              new Point(nv.X1, nv.Y1),
+              new Point(ov.X1 - 1, ov.Y2),
+            ))
+          );
         }
-        if (nv.left > ov.left) {
-          this.grids = this.grids.filter((grid) => grid.x >= nv.left);
-          // console.log('left pop');
+        // Left Pop
+        if (nv.X1 > ov.X1) {
+          this.grids = this.grids.filter((grid) => grid.x >= nv.X1);
         }
-        if (nv.right < ov.right) {
-          this.grids = this.grids.filter((grid) => grid.x <= nv.right);
-          // console.log('right pop');
+        // Right Pop
+        if (nv.X2 < ov.X2) {
+          this.grids = this.grids.filter((grid) => grid.x <= nv.X2);
         }
-        if (nv.right > ov.right) {
-          this.grids.push(...this.readGridFromBufferSize(
-            ov.right + 1,
-            nv.top,
-            nv.right,
-            nv.bottom,
-          ));
-          // console.log('right push');
+        // Right Push
+        if (nv.X2 > ov.X2) {
+          this.grids.push(
+            ...this.readGridsFromBufferRect(Rect.FromTwoPoints(
+              new Point(ov.X2 + 1, ov.Y1),
+              new Point(nv.X2, nv.Y2),
+            ))
+          );
         }
       },
     },
@@ -154,21 +155,7 @@ export default {
     autoPlayerBlockPoint() {
       return Space.ToBlock(this.autoPlayerSpacePoint);
     },
-    // 渲染的网格矩形范围
-    autoRenderSize() {
-      const result = {};
-      // 获取渲染空间范围
-      const top = this.playerPos.y - 34;
-      const bottom = this.playerPos.y + 28;
-      const left = this.playerPos.x - 51;
-      const right = this.playerPos.x + 51;
-      result.top = Math.floor((top + 2) / 5);
-      result.bottom = Math.floor((bottom + 2) / 5);
-      result.left = Math.floor((left + 2) / 5);
-      result.right = Math.floor((right + 2) / 5);
-      return result;
-    },
-    // 渲染的网格矩形范围
+    // 当前需要渲染的网格矩形范围
     autoRenderRect() {
       // 获取渲染空间范围
       const top = this.playerPos.y - 34;
@@ -254,7 +241,6 @@ export default {
     readGridFromBufferSpace(spacePt) {
       return this.readGridFromBuffer(Space.ToGrid(spacePt));
     },
-
     // 传入矩形对象，从缓存中读取多个网格（会添加坐标）
     readGridsFromBufferRect(rect) {
       const result = rect.Points.map(point => {
@@ -266,34 +252,6 @@ export default {
         };
       });
       return result;
-    },
-
-    // 传入网格坐标矩形范围，从区块缓存中读取多个网格（会添加坐标）
-    readGridFromBufferRect(x, y, w, h) {
-      const result = [];
-      for (let i = 0; i < h; ++i) {
-        for (let j = 0; j < w; ++j) {
-          const px = x + j;
-          const py = y + i;
-          result.push({
-            id: `${px}~${py}`,
-            x: px,
-            y: py,
-            ...this.readGridFromBuffer(new Point(px, py)),
-          });
-        }
-      }
-      return result;
-    },
-    // 传入网格坐标范围，从区块缓存中读取多个网格（会添加坐标）
-    readGridFromBufferSize(x1, y1, x2, y2) {
-      const width = x2 - x1 + 1;
-      const height = y2 - y1 + 1;
-      if (width > 0 && height > 0) {
-        return this.readGridFromBufferRect(x1, y1, width, height);
-      } else {
-        return [];
-      }
     },
     //#endregion
     //#region 接口访问方法
