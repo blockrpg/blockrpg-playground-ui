@@ -65,6 +65,19 @@ import smartMap from '@/components/smartMap';
 import { Point } from 'blockrpg-core/built/Point';
 import * as APIPlayer from '@/api/player';
 
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:4001/roam');
+socket.on('connect', () => {
+  console.log('已经连接到服务');
+});
+socket.on('roam', (data) => {
+
+});
+socket.on('disconnect', () => {
+  console.log('从服务断开连接');
+});
+
 export default {
   name: 'viewport',
   props: {},
@@ -74,7 +87,7 @@ export default {
       ready: false,
       //#endregion
       //#region 页面内容绑定数据
-      playerName: '鸡毛巾',
+      playerName: '',
       playerImage: 0,
       player: {},
       //#endregion
@@ -82,7 +95,22 @@ export default {
       //#endregion
     };
   },
-  watch: {},
+  watch: {
+    player: {
+      handler(nv, ov) {
+        setTimeout(() => {
+          socket.emit('roam', {
+            x: nv.x,
+            y: nv.y,
+            dir: nv.dir,
+            ges: nv.ges,
+          });
+          console.log(nv);
+        }, 1000);
+
+      },
+    },
+  },
   computed: {
     //#region 常量计算属性
     //#endregion
@@ -95,6 +123,7 @@ export default {
     //#region 页面事件方法
     //#endregion
     //#region 业务逻辑方法
+    // 获取玩家的信息
     async getPlayerInfo() {
       const result = await APIPlayer.curInfo();
       if (result.success) {
