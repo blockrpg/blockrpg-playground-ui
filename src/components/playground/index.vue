@@ -41,6 +41,15 @@
         v-model="player"
         :legal="moveLegal"
       />
+      <actor
+        v-for="actor in autoActors"
+        :key="actor.account"
+        :name="actor.name"
+        :imgid="actor.image"
+        :dir="actor.dir"
+        :ges="actor.ges"
+        :style="actorStyle(actor)">
+      </actor>
       <span
         class="pos-span">
         {{`x:${player.x} y:${player.y}`}}
@@ -65,18 +74,7 @@ import smartMap from '@/components/smartMap';
 import { Point } from 'blockrpg-core/built/Point';
 import * as APIPlayer from '@/api/player';
 
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:4001/roam');
-socket.on('connect', () => {
-  console.log('已经连接到服务');
-});
-socket.on('roam', (data) => {
-
-});
-socket.on('disconnect', () => {
-  console.log('从服务断开连接');
-});
+import SocketIOClient from 'socket.io-client';
 
 export default {
   name: 'viewport',
@@ -85,11 +83,15 @@ export default {
     return {
       //#region 页面对象
       ready: false,
+      // SocketIO客户端
+      socket: null,
       //#endregion
       //#region 页面内容绑定数据
       playerName: '',
       playerImage: 0,
       player: {},
+      // 保存其他玩家集合
+      actors: {},
       //#endregion
       //#region 页面样式绑定数据
       //#endregion
@@ -98,23 +100,28 @@ export default {
   watch: {
     player: {
       handler(nv, ov) {
-        setTimeout(() => {
-          socket.emit('roam', {
-            x: nv.x,
-            y: nv.y,
-            dir: nv.dir,
-            ges: nv.ges,
-          });
-          console.log(nv);
-        }, 1000);
-
+        this.socket.emit('roam', {
+          x: nv.x,
+          y: nv.y,
+          dir: nv.dir,
+          ges: nv.ges,
+        });
+        console.log(nv);
       },
+    },
+    autoActors: {
+      handler(nv) {
+        console.log(nv);
+      }
     },
   },
   computed: {
     //#region 常量计算属性
     //#endregion
     //#region 数据转换计算属性
+    autoActors() {
+      return Object.values(this.actors).filter(actor => actor.name !== this.playerName);
+    }
     //#endregion
     //#region 样式计算属性
     //#endregion
@@ -145,6 +152,16 @@ export default {
     //#region 数据转换方法
     //#endregion
     //#region 自动样式方法
+    actorStyle(other) {
+      const baseTop = 176;
+      const baseLeft = 312;
+      const style = {};
+      style.transform = `translate(
+        ${baseLeft + (other.x - this.player.x) * (32.0 / 5)}px,
+        ${baseTop + (other.y - this.player.y) * (32.0 / 5)}px
+      )`;
+      return style;
+    },
     //#endregion
     //#region 其他方法
     moveLegal(pos) {
@@ -156,9 +173,35 @@ export default {
   created() {},
   mounted() {
     this.getPlayerInfo();
+    this.socket = SocketIOClient('http://localhost:4001/roam');
+    this.socket.on('connect', () => {
+      console.log('已经连接到服务');
+    });
+    this.socket.on('otherEnter', (data) => {
+      this.actors[data.account] = data;
+      this.actors = { ...this.actors };
+    });
+    this.socket.on('otherRoam', (data) => {
+      this.actors[data.account] = data;
+      this.actors = { ...this.actors };
+    });
+    this.socket.on('otherLeave', (data) => {
+      delete this.actors[data];
+      this.actors = { ...this.actors };
+    });
+    this.socket.on('intoView', (data) => {
+      data.forEach((actor) => {
+        this.actors[actor.account] = actor;
+      });
+      this.actors = { ...this.actors };
+    });
+    this.socket.on('disconnect', () => {
+      console.log('从服务断开连接');
+    });
   },
   components: {
     player,
+    actor,
     pocket,
     smartMap,
   },
