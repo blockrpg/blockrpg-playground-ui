@@ -1,10 +1,14 @@
 <!--局部样式-->
 <style scoped>
-.playground-warp {
+.vkeyboard > div {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 50px;
+  width: 300px;
+}
+.vkeyboard > .btn-wrap-mid {
+  justify-content: center;
+}
+.vkeyboard > .btn-wrap-space {
+  justify-content: space-between;
 }
 </style>
 
@@ -12,30 +16,23 @@
 <style></style>
 
 <template>
-  <xpage
-    class="view-playground"
-    name="游乐场">
-    <template
-      v-slot:right>
-      <el-button
-        @click="handleExitClick"
-        type="text">
-        退出游戏
-      </el-button>
-    </template>
-    <div class="playground-warp">
-      <playground />
-      <vkeyboard />
+  <div class="vkeyboard">
+    <div class="btn-wrap-mid">
+      <el-button type="primary">上</el-button>
     </div>
-  </xpage>
+    <div class="btn-wrap-space">
+      <el-button type="primary">左</el-button>
+      <el-button type="primary">右</el-button>
+    </div>
+    <div class="btn-wrap-mid">
+      <el-button type="primary">下</el-button>
+    </div>
+  </div>
 </template>
 
 <script>
-import playground from '@/components/playground';
-import vkeyboard from '@/components/vkeyboard';
-
 export default {
-  name: 'view-playground',
+  name: 'vkeyboard',
   props: {},
   data() {
     return {
@@ -58,12 +55,6 @@ export default {
   },
   methods: {
     //#region 页面事件方法
-    // 退出游戏事件
-    handleExitClick() {
-      this.$router.push({
-        name: 'view-login',
-      });
-    },
     //#endregion
     //#region 业务逻辑方法
     //#endregion
@@ -78,9 +69,6 @@ export default {
   },
   created() {},
   mounted() {},
-  components: {
-    playground,
-    vkeyboard,
-  },
+  components: {},
 };
 </script>

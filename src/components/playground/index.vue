@@ -37,18 +37,20 @@
       />
       <player
         :nickname="playerName"
+        :nicknameAlways="true"
         :imgid="playerImage"
         v-model="player"
         :legal="moveLegal"
       />
       <actor
-        v-for="actor in autoActors"
-        :key="actor.account"
-        :name="actor.name"
-        :imgid="actor.image"
-        :dir="actor.dir"
-        :ges="actor.ges"
-        :style="actorStyle(actor)">
+        v-for="roamer in roamersList"
+        :key="roamer.account"
+        :nickname="roamer.name"
+        :nicknameAlways="true"
+        :imgid="roamer.image"
+        :dir="roamer.dir"
+        :ges="roamer.ges"
+        :style="roamerStyle(roamer)">
       </actor>
       <span
         class="pos-span">
@@ -75,6 +77,7 @@ import { Point } from 'blockrpg-core/built/Point';
 import * as APIPlayer from '@/api/player';
 
 import SocketIOClient from 'socket.io-client';
+import { Rect } from 'blockrpg-core/built/Rect';
 
 export default {
   name: 'viewport',
@@ -90,8 +93,9 @@ export default {
       playerName: '',
       playerImage: 0,
       player: {},
-      // 保存其他玩家集合
-      actors: {},
+      // 缓存其他的漫步者信息
+      roamers: {},
+      roamersList: [],
       //#endregion
       //#region 页面样式绑定数据
       //#endregion
@@ -106,22 +110,13 @@ export default {
           dir: nv.dir,
           ges: nv.ges,
         });
-        console.log(nv);
       },
-    },
-    autoActors: {
-      handler(nv) {
-        console.log(nv);
-      }
     },
   },
   computed: {
     //#region 常量计算属性
     //#endregion
     //#region 数据转换计算属性
-    autoActors() {
-      return Object.values(this.actors).filter(actor => actor.name !== this.playerName);
-    }
     //#endregion
     //#region 样式计算属性
     //#endregion
@@ -146,55 +141,71 @@ export default {
         this.ready = true;
       }
     },
+    // 更新游戏中的Roamers
+    updateRoamers() {
+      this.roamersList = Object.values(this.roamers);
+    },
     //#endregion
     //#region 接口访问方法
     //#endregion
     //#region 数据转换方法
     //#endregion
     //#region 自动样式方法
-    actorStyle(other) {
+    // 计算Roamer的位置信息
+    roamerStyle(roamer) {
       const baseTop = 176;
       const baseLeft = 312;
       const style = {};
       style.transform = `translate(
-        ${baseLeft + (other.x - this.player.x) * (32.0 / 5)}px,
-        ${baseTop + (other.y - this.player.y) * (32.0 / 5)}px
+        ${baseLeft + (roamer.x - this.player.x) * (32.0 / 5)}px,
+        ${baseTop + (roamer.y - this.player.y) * (32.0 / 5)}px
       )`;
       return style;
     },
     //#endregion
     //#region 其他方法
     moveLegal(pos) {
+      // 计算地图冲突
       const grid = this.$refs.smtMap.readGridFromBufferSpace(new Point(pos.x, pos.y));
-      return grid.pass;
+      const mapClash = !grid.pass;
+      // 计算玩家冲突
+      const rect = new Rect(pos.x - 2, pos.y, 5, 1);
+      const roamers = Object.values(this.roamers);
+      const roamerClash = roamers.some((roamer) => rect.Exist(new Point(roamer.x, roamer.y)));
+      return !(mapClash || roamerClash);
     },
     //#endregion
   },
   created() {},
   mounted() {
     this.getPlayerInfo();
-    this.socket = SocketIOClient('http://localhost:4001/roam');
+    this.socket = SocketIOClient('http://192.168.50.217:4001/roam');
     this.socket.on('connect', () => {
       console.log('已经连接到服务');
     });
-    this.socket.on('otherEnter', (data) => {
-      this.actors[data.account] = data;
-      this.actors = { ...this.actors };
+
+    this.socket.on('otherEnter', (roamer) => {
+      this.roamers[roamer.account] = roamer;
+      this.updateRoamers();
+      console.log('其他玩家登录', roamer);
     });
-    this.socket.on('otherRoam', (data) => {
-      this.actors[data.account] = data;
-      this.actors = { ...this.actors };
+    this.socket.on('otherRoam', (roamer) => {
+      this.roamers[roamer.account] = roamer;
+      this.updateRoamers();
     });
-    this.socket.on('otherLeave', (data) => {
-      delete this.actors[data];
-      this.actors = { ...this.actors };
+    this.socket.on('otherLeave', (account) => {
+      console.log('其他玩家离开');
+      delete this.roamers[account];
+      this.updateRoamers();
     });
-    this.socket.on('intoView', (data) => {
-      data.forEach((actor) => {
-        this.actors[actor.account] = actor;
+    this.socket.on('intoView', (roamers) => {
+      roamers.forEach((roamer) => {
+        this.roamers[roamer.account] = roamer;
       });
-      this.actors = { ...this.actors };
+      this.updateRoamers();
+      console.log('进入视野', roamers.map((roamer) => roamer.name));
     });
+
     this.socket.on('disconnect', () => {
       console.log('从服务断开连接');
     });

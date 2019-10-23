@@ -29,7 +29,7 @@
     <el-form
       class="reg-form"
       ref="regForm"
-      style="width: 400px"
+      style="width: 300px"
       size="mini"
       label-position="left"
       label-width="80px"
@@ -45,7 +45,7 @@
           },
         ]">
         <el-input
-          placeholder="请输入玩家昵称，长度不超过20个字符"
+          placeholder="请输入昵称，不超过20个字符"
           clearable
           autocomplete="new-password"
           v-model="regForm.name">
@@ -62,7 +62,7 @@
           },
         ]">
         <el-input
-          placeholder="请输入玩家登录密码，8 ~ 16个字符以内"
+          placeholder="请输入密码，8 ~ 16个字符以内"
           clearable
           type="password"
           autocomplete="new-password"
@@ -81,7 +81,7 @@
         ]">
         <el-input
           ref="rePasswordInput"
-          placeholder="请再次输入玩家登录密码以确认"
+          placeholder="请再次输入密码以确认"
           clearable
           type="password"
           autocomplete="new-password"

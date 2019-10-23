@@ -20,8 +20,8 @@
   max-width: 64px;
   height: 17px;
   font-size: 12px;
-  color: #222;
-  background-color: rgba(0, 0, 0, 0.1);
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.3);
   border-radius: 2px;
   padding: 0px 3px 0px 3px;
   overflow: hidden;
