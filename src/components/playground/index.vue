@@ -180,41 +180,41 @@ export default {
     //#endregion
   },
   created() {},
-  async mounted() {
-    await this.getPlayerInfo();
-    if (this.ready) {
-      this.socket = SocketIOClient('http://192.168.50.217:4001/roam');
-      this.socket.on('connect', () => {
-        console.log('已经连接到服务');
-      });
+  mounted() {
+    this.getPlayerInfo();
+    // if (this.ready) {
+    this.socket = SocketIOClient('http://192.168.50.217:4001/roam');
+    this.socket.on('connect', () => {
+      console.log('已经连接到服务');
+    });
 
-      this.socket.on('otherEnter', (roamer) => {
+    this.socket.on('otherEnter', (roamer) => {
+      this.roamers[roamer.account] = roamer;
+      this.updateRoamers();
+      console.log('其他玩家登录', roamer.account);
+    });
+    this.socket.on('otherRoam', (roamer) => {
+      this.roamers[roamer.account] = roamer;
+      console.log('其他玩家漫游', roamer.account, roamer.x, roamer.y);
+      this.updateRoamers();
+    });
+    this.socket.on('otherLeave', (account) => {
+      console.log('其他玩家离开', account);
+      delete this.roamers[account];
+      this.updateRoamers();
+    });
+    this.socket.on('intoView', (roamers) => {
+      roamers.forEach((roamer) => {
         this.roamers[roamer.account] = roamer;
-        this.updateRoamers();
-        console.log('其他玩家登录', roamer.account);
       });
-      this.socket.on('otherRoam', (roamer) => {
-        this.roamers[roamer.account] = roamer;
-        console.log('其他玩家漫游', roamer.account, roamer.x, roamer.y);
-        this.updateRoamers();
-      });
-      this.socket.on('otherLeave', (account) => {
-        console.log('其他玩家离开', account);
-        delete this.roamers[account];
-        this.updateRoamers();
-      });
-      this.socket.on('intoView', (roamers) => {
-        roamers.forEach((roamer) => {
-          this.roamers[roamer.account] = roamer;
-        });
-        this.updateRoamers();
-        console.log('进入视野', roamers.map((roamer) => roamer.name));
-      });
+      this.updateRoamers();
+      console.log('进入视野', roamers.map((roamer) => roamer.name));
+    });
 
-      this.socket.on('disconnect', () => {
-        console.log('从服务断开连接');
-      });
-    }
+    this.socket.on('disconnect', () => {
+      console.log('从服务断开连接');
+    });
+    // }
   },
   beforeDestroy() {
     // 离开页面关闭Socket连接
