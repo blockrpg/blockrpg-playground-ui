@@ -55,7 +55,10 @@
         {{`x:${player.x} y:${player.y}`}}
       </span>
       <pocket
+        :raise="chatShow"
       />
+      <chatView v-model="chatShow" />
+      <chatSender v-model="chatShow" />
     </template>
   </div>
 </template>
@@ -71,6 +74,8 @@ import player from '@/components/player';
 import pocket from '@/components/pocket';
 import roamers from '@/components/roamers';
 import smartMap from '@/components/smartMap';
+import chatView from '@/components/chatView';
+import chatSender from '@/components/chatSender';
 import { Point } from 'blockrpg-core/built/Point';
 import { Rect } from 'blockrpg-core/built/Rect';
 import * as APIPlayer from '@/api/player';
@@ -93,6 +98,8 @@ export default {
       // 缓存其他的漫步者信息
       roamers: {},
       roamersList: [],
+      // 是否显示聊天室功能
+      chatShow: false,
       //#endregion
       //#region 页面样式绑定数据
       //#endregion
@@ -226,6 +233,8 @@ export default {
     pocket,
     smartMap,
     roamers,
+    chatView,
+    chatSender,
   },
 };
 </script>

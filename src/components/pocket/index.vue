@@ -3,13 +3,14 @@
 .pocket {
   position: absolute;
   z-index: 2000;
-  bottom: 0px;
-  left: 183px;
+  bottom: 10px;
+  transition: bottom 0.2s;
+  left: 192px;
 }
 .pocket ul {
   list-style-type: none;
   margin: 0px;
-  padding: 10px;
+  padding: 0px;
   display: flex;
 }
 .pocket ul > li {
@@ -37,7 +38,9 @@
 <style></style>
 
 <template>
-  <div class="pocket">
+  <div
+    class="pocket"
+    :style="autoStyle">
     <ul>
       <li></li>
       <li></li>
@@ -53,7 +56,13 @@
 <script>
 export default {
   name: 'pocket',
-  props: {},
+  props: {
+    // 是否抬升
+    raise: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       //#region 页面对象
@@ -71,6 +80,11 @@ export default {
     //#region 数据转换计算属性
     //#endregion
     //#region 样式计算属性
+    autoStyle() {
+      const style = {};
+      style.bottom  = this.raise ? '28px' : '10px';
+      return style;
+    },
     //#endregion
   },
   methods: {
