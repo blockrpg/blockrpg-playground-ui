@@ -2,7 +2,7 @@
 <style scoped>
 .pocket {
   position: absolute;
-  z-index: 100;
+  z-index: 2000;
   bottom: 0px;
   left: 183px;
 }

@@ -156,6 +156,12 @@ export default {
     },
     //#endregion
     //#region 业务逻辑方法
+    // 跳转到游乐场
+    jmpToPlayground() {
+      this.$router.push({
+        name: 'view-playground',
+      });
+    },
     // 玩家登录逻辑
     playerLogin(input, password) {
       const inputDOM = this.$refs['focusInput'].$el.querySelector('input');
@@ -168,18 +174,14 @@ export default {
         const result = await api.login(params);
         if (result.success) {
           if (this.autoLogin) {
-            this.$router.push({
-              name: 'view-playground',
-            });
+            this.jmpToPlayground();
           } else {
             this.$msgbox({
               title: '登录成功',
               type: 'success',
               message: `点击确定进入游戏`,
               callback: () => {
-                this.$router.push({
-                  name: 'view-playground',
-                });
+                this.jmpToPlayground();
               },
             });
           }
