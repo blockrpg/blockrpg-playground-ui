@@ -1,5 +1,13 @@
 <!--局部样式-->
 <style scoped>
+.view-playground {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 .playground-warp {
   display: flex;
   flex-direction: column;
