@@ -18,7 +18,7 @@
 <template>
   <xpage
     class="view-register"
-    name="注册">
+    name="注册玩家">
     <template v-slot:right>
       <el-button
         @click="handleToLoginClick"

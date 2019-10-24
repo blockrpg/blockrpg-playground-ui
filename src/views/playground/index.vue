@@ -14,7 +14,7 @@
 <template>
   <xpage
     class="view-playground"
-    name="控制台">
+    name="游乐场">
     <template
       v-slot:right>
       <el-button
