@@ -13,7 +13,7 @@
 .pos-span {
   position: absolute;
   top: 4px;
-  right: 4px;
+  left: 288px;
   z-index: 10;
   background-color: rgba(255, 255, 255, 0.5);
   font-size: 12px;
