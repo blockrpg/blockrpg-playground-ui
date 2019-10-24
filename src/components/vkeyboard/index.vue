@@ -2,7 +2,8 @@
 <style scoped>
 .vkeyboard > div {
   display: flex;
-  width: 300px;
+  width: 180px;
+  height: 40px;
 }
 .vkeyboard > .btn-wrap-mid {
   justify-content: center;
@@ -18,14 +19,14 @@
 <template>
   <div class="vkeyboard">
     <div class="btn-wrap-mid">
-      <el-button type="primary">上</el-button>
+      <el-button @click="handleBtnClick('Up')" type="primary">上</el-button>
     </div>
     <div class="btn-wrap-space">
-      <el-button type="primary">左</el-button>
-      <el-button type="primary">右</el-button>
+      <el-button @click="handleBtnClick('Left')" type="primary">左</el-button>
+      <el-button @click="handleBtnClick('Right')" type="primary">右</el-button>
     </div>
     <div class="btn-wrap-mid">
-      <el-button type="primary">下</el-button>
+      <el-button @click="handleBtnClick('Down')" type="primary">下</el-button>
     </div>
   </div>
 </template>
@@ -55,6 +56,9 @@ export default {
   },
   methods: {
     //#region 页面事件方法
+    handleBtnClick(code) {
+      this.$root.$emit('vkeydown', code);
+    },
     //#endregion
     //#region 业务逻辑方法
     //#endregion

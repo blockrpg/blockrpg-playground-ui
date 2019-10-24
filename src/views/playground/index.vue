@@ -14,7 +14,7 @@
 <template>
   <xpage
     class="view-playground"
-    name="游乐场">
+    name="控制台">
     <template
       v-slot:right>
       <el-button
@@ -25,7 +25,7 @@
     </template>
     <div class="playground-warp">
       <playground />
-      <vkeyboard />
+      <vkeyboard style="margin-top: 20px" />
     </div>
   </xpage>
 </template>

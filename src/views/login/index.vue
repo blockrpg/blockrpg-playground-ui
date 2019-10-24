@@ -14,7 +14,7 @@
 
 <template>
   <xpage
-    name="游戏登录"
+    name="登录"
     class="view-login">
     <template v-slot:right>
       <el-button

@@ -23,15 +23,22 @@
 import npc from '@/components/npc';
 
 // 按键方向映射
+// 支持WSAD键
+// 支持键盘方向键
+// 支持虚拟键盘
 const KeyDirMap = {
   ArrowUp: 0,
   KeyW: 0,
+  Up: 0,
   ArrowDown: 1,
   KeyS: 1,
+  Down: 1,
   ArrowLeft: 2,
   KeyA: 2,
+  Left: 2,
   ArrowRight: 3,
   KeyD: 3,
+  Right: 3,
 };
 
 export default {
@@ -59,15 +66,23 @@ export default {
   },
   methods: {
     //#region 页面事件方法
-    // 方向键事件
+    // 真实键事件
     handleKeyDown(e) {
-      const newDir = KeyDirMap[e.code];
+      this.moveByCode(e.code);
+    },
+    // 虚拟键事件
+    handleVKeyDown(code) {
+      this.moveByCode(code);
+    },
+    //#endregion
+    //#region 业务逻辑方法
+    // 根据Code驱动玩家移动
+    moveByCode(code) {
+      const newDir = KeyDirMap[code];
       if (isFinite(newDir)) {
         this.Move(newDir);
       }
     },
-    //#endregion
-    //#region 业务逻辑方法
     //#endregion
     //#region 接口访问方法
     //#endregion
@@ -81,9 +96,11 @@ export default {
   created() {},
   mounted() {
     document.addEventListener('keydown', this.handleKeyDown);
+    this.$root.$on('vkeydown', this.handleVKeyDown);
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.handleKeyDown);
+    this.$root.$off('vkeydown', this.handleVKeyDown);
   },
   components: {},
 };
