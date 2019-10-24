@@ -41,8 +41,11 @@
         :imgid="playerImage"
         v-model="player"
         :legal="moveLegal"
+        :style="{
+          'z-index': this.autoZIndexMap[playerAccount] || 1000
+        }"
       />
-      <actor
+      <!-- <actor
         v-for="roamer in roamersList"
         :key="roamer.account"
         :nickname="roamer.name"
@@ -51,7 +54,12 @@
         :dir="roamer.dir"
         :ges="roamer.ges"
         :style="roamerStyle(roamer)">
-      </actor>
+      </actor> -->
+      <roamers
+        :player="player"
+        :list="roamersList"
+        :zindexMap="autoZIndexMap"
+      />
       <span
         class="pos-span">
         {{`x:${player.x} y:${player.y}`}}
@@ -73,6 +81,7 @@ import actor from '@/components/actor';
 import player from '@/components/player';
 import pocket from '@/components/pocket';
 import smartMap from '@/components/smartMap';
+import roamers from '@/components/roamers';
 import { Point } from 'blockrpg-core/built/Point';
 import * as APIPlayer from '@/api/player';
 
@@ -90,6 +99,7 @@ export default {
       socket: null,
       //#endregion
       //#region 页面内容绑定数据
+      playerAccount: '',
       playerName: '',
       playerImage: 0,
       player: {},
@@ -112,11 +122,30 @@ export default {
         });
       },
     },
+    autoZIndexMap: {
+      handler(nv, ov) {
+        console.log(nv);
+      },
+    },
   },
   computed: {
     //#region 常量计算属性
     //#endregion
     //#region 数据转换计算属性
+    // 自动根据坐标y计算zindex样式
+    autoZIndexMap() {
+      const list = this.roamersList.map((item) => ({ account: item.account, y: item.y }));
+      list.push({
+        account: this.playerAccount,
+        y: this.player.y,
+      });
+      list.sort((a, b) => (a.y - b.y));
+      const result = {};
+      list.forEach((item, index) => {
+        result[item.account] = 1000 + index;
+      });
+      return result;
+    },
     //#endregion
     //#region 样式计算属性
     //#endregion
@@ -130,6 +159,7 @@ export default {
       const result = await APIPlayer.curInfo();
       if (result.success) {
         const info = result.object;
+        this.playerAccount = info.account;
         this.playerName = info.name;
         this.playerImage = Number(info.image);
         this.player = {
@@ -215,6 +245,7 @@ export default {
     actor,
     pocket,
     smartMap,
+    roamers,
   },
 };
 </script>
