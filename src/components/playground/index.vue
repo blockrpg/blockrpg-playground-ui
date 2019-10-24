@@ -122,11 +122,6 @@ export default {
         });
       },
     },
-    autoZIndexMap: {
-      handler(nv, ov) {
-        console.log(nv);
-      },
-    },
   },
   computed: {
     //#region 常量计算属性
@@ -217,14 +212,15 @@ export default {
     this.socket.on('otherEnter', (roamer) => {
       this.roamers[roamer.account] = roamer;
       this.updateRoamers();
-      console.log('其他玩家登录', roamer);
+      console.log('其他玩家登录', roamer.account);
     });
     this.socket.on('otherRoam', (roamer) => {
       this.roamers[roamer.account] = roamer;
+      console.log('其他玩家漫游', roamer.account, roamer.x, roamer.y);
       this.updateRoamers();
     });
     this.socket.on('otherLeave', (account) => {
-      console.log('其他玩家离开');
+      console.log('其他玩家离开', account);
       delete this.roamers[account];
       this.updateRoamers();
     });
@@ -239,6 +235,10 @@ export default {
     this.socket.on('disconnect', () => {
       console.log('从服务断开连接');
     });
+  },
+  beforeDestroy() {
+    // 离开页面关闭Socket连接
+    this.socket.disconnect();
   },
   components: {
     player,

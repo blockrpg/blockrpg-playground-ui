@@ -124,6 +124,10 @@ export default {
     //#region 常量计算属性
     //#endregion
     //#region 数据转换计算属性
+    // 是否处于自动登录模式
+    autoLogin() {
+      return !!(this.$route.query.login && this.$route.query.login.toString() === 'true');
+    },
     //#endregion
     //#region 样式计算属性
     //#endregion
@@ -163,18 +167,39 @@ export default {
         };
         const result = await api.login(params);
         if (result.success) {
-          this.$msgbox({
-            title: '登录成功',
-            type: 'success',
-            message: `点击确定进入游戏`,
-            callback: () => {
-              this.$router.push({
-                name: 'view-playground',
-              });
-            },
-          });
+          if (this.autoLogin) {
+            this.$router.push({
+              name: 'view-playground',
+            });
+          } else {
+            this.$msgbox({
+              title: '登录成功',
+              type: 'success',
+              message: `点击确定进入游戏`,
+              callback: () => {
+                this.$router.push({
+                  name: 'view-playground',
+                });
+              },
+            });
+          }
         }
       });
+    },
+    // 尝试自动填充登录表单
+    tryFillLoginForm() {
+      if (this.$route.query.input) {
+        this.loginForm.input = this.$route.query.input;
+      }
+      if (this.$route.query.password) {
+        this.loginForm.password = this.$route.query.password;
+      }
+    },
+    // 尝试自动登录
+    tryAutoLogin() {
+      if (this.autoLogin) {
+        this.handleLoginClick();
+      }
     },
     //#endregion
     //#region 接口访问方法
@@ -187,7 +212,10 @@ export default {
     //#endregion
   },
   created() {},
-  mounted() {},
+  mounted() {
+    this.tryFillLoginForm();
+    this.tryAutoLogin();
+  },
   components: {},
 };
 </script>
